@@ -1,5 +1,5 @@
 // constants/basePath.ts
-export const BASE_PATH = "https://tpc.iitbhu.ac.in";
+export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/recruiter";
 
 export const stripBasePath = (path: string): string => {
   if (path.startsWith(BASE_PATH)) {
