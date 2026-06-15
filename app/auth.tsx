@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { usePathname } from "next/navigation"; // ✅ removed useRouter
+import { usePathname } from "next/navigation";
 
 import firebase from "firebase/compat/app";
 import { getAuth, User } from "firebase/auth";
