@@ -263,11 +263,11 @@ function Form({
                   color="purple"
                   onClick={() => {
                     if (goToPath) {
-                      router.push(goToPath.path, {
+                      router.replace(goToPath.path, {
                         forceOptimisticNavigation: true,
                       });
                     } else
-                      router.push("/", {
+                      router.replace("/", {
                         forceOptimisticNavigation: true,
                       });
                   }}

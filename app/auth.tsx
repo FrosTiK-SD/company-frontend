@@ -2,28 +2,21 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-// Firebase
 import firebase from "firebase/compat/app";
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  Auth,
-  User,
-} from "firebase/auth";
+import { getAuth, Auth, User } from "firebase/auth";
 import { FIREBASE_CONFIG } from "../constants/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser, setCurrentUser } from "../store/states/userSlice";
 import { PUBLIC_ROUTES } from "../routes";
 import axios from "axios";
-import {
-  selectIdStore,
-  updateCompanyRecruiterId,
-} from "../store/states/idStore";
+import { updateCompanyRecruiterId } from "../store/states/idStore";
 import Spinner from "../components/spinner/Spinner";
+import { stripBasePath } from "../constants/basePath";
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(FIREBASE_CONFIG);
+}
+const firebaseAuth = getAuth(firebase.app());
 
 export default function AuthWrapper({
   children,
@@ -31,95 +24,81 @@ export default function AuthWrapper({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathName: string = usePathname() || "";
   const dispatch = useDispatch();
-  const UserState = useSelector(selectUser);
-  const IdStore = useSelector(selectIdStore);
 
-  const [loggedIn, setLoggedIn] = useState<Boolean>(false);
-  const [loginChecked, setLoginChecked] = useState<Boolean>(false);
-  const [loading, setLoading] = useState<Boolean>(true);
-  const auth: Auth = getAuth(firebase.initializeApp(FIREBASE_CONFIG));
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [loginChecked, setLoginChecked] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const checkAuthState = () => {
-    const currentUser = auth.currentUser;
-    dispatch(setCurrentUser({ user: currentUser }));
+  const rawPathName: string = usePathname() || "";
+  const pathName = stripBasePath(rawPathName);
 
-    // If user is not logged in
-    if (!currentUser) {
-      setLoggedIn(false);
-      setLoginChecked(true);
-    }
-  };
+  const isPublicRoute = (path: string): boolean => path in PUBLIC_ROUTES;
 
-  auth.onAuthStateChanged(async function (user) {
-    if (!(pathName in PUBLIC_ROUTES)) {
-      // if (!user)  setLoginChecked(false);
-      checkAuthState();
-    }
-  });
+  const getIDToken = async (user: User) => {
+    try {
+      const idToken = await user.getIdToken(true);
 
-  const getIDToken = async () => {
-    const idToken = await UserState.currentUser.getIdToken(true);
-    console.log(idToken);
-    let loginState: boolean = false;
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_AUTH_BACKEND}/api/token/verify`,
+        { headers: { token: idToken } }
+      );
 
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_AUTH_BACKEND}/api/token/verify`,
-      {
-        headers: {
-          token: idToken,
-        },
-      }
-    );
-    console.log(response);
-
-    if (!response.data.error) {
-      if (response.data) {
+      if (!response.data.error && response.data?.data) {
         dispatch(
           updateCompanyRecruiterId({
             companyId: response.data.data["company"],
             recruiterId: response.data.data["_id"],
           })
         );
+        dispatch(setCurrentUser({ user }));
+        setLoggedIn(true);
+      } else {
+        setLoggedIn(false);
       }
-      setLoggedIn(true);
-    } else setLoggedIn(false);
-    setLoginChecked(true);
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      setLoggedIn(false);
+    } finally {
+      setLoginChecked(true);
+    }
   };
 
-  // Trigger whenever there is a change in the UserState.currentUser
   useEffect(() => {
-    if (UserState.currentUser && !(pathName in PUBLIC_ROUTES)) {
-      getIDToken();
+    if (isPublicRoute(pathName)) {
+      setLoading(false);
+      return;
     }
-  }, [UserState.currentUser]);
 
-  useEffect(() => {
-    if (loggedIn && pathName in PUBLIC_ROUTES) router.push("/");
-  }, [loggedIn]);
-
-  // Trigger when the full login cycle is completed . Kick out if not logged in
-  useEffect(() => {
-    if (loginChecked) {
-      // Check if the route is public or not
-      if (!loggedIn && !(pathName in PUBLIC_ROUTES)) {
-        router.push("/register/recruiter", {
-          forceOptimisticNavigation: true,
-        });
-      } else if (loggedIn && pathName in PUBLIC_ROUTES) {
-        router.push("/", {
-          forceOptimisticNavigation: true,
-        });
+    const unsubscribe = firebaseAuth.onAuthStateChanged(async (user) => {
+      if (user) {
+        await getIDToken(user);
       } else {
-        setLoading(false);
+        dispatch(setCurrentUser({ user: null }));
+        setLoggedIn(false);
+        setLoginChecked(true);
       }
-    }
-  }, [loginChecked]);
+    });
 
-  // Trigger whenever path gets changed
+    return () => unsubscribe();
+  }, []); // runs once on mount
+
+  // Redirect after login check completes
   useEffect(() => {
-    if (pathName in PUBLIC_ROUTES) {
+    if (!loginChecked) return;
+
+    if (!loggedIn && !isPublicRoute(pathName)) {
+      router.replace("/register/recruiter");
+    } else if (loggedIn && isPublicRoute(pathName)) {
+      router.replace("/");
+    } else {
+      setLoading(false);
+    }
+  }, [loginChecked, loggedIn]);
+
+  // If path changes to a public route, stop the spinner
+  useEffect(() => {
+    if (isPublicRoute(pathName)) {
       setLoading(false);
     }
   }, [pathName]);

@@ -9,10 +9,10 @@ export default function Footer() {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
   const handleCredits = () => {
-    router.push("/credits");
+    router.replace("/credits");
   };
   const handleLinkedin = () => {
-    router.push("https://www.linkedin.com/company/tpoiitbhu/");
+    router.replace("https://www.linkedin.com/company/tpoiitbhu/");
   };
   return (
     <div className="flex justify-center items-center flex-col mt-8">
