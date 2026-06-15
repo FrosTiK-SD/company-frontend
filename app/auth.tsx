@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import firebase from "firebase/compat/app";
-import { getAuth, User } from "firebase/auth";
+import { getAuth, Auth, User } from "firebase/auth";
 import { FIREBASE_CONFIG } from "../constants/firebase";
-import { useDispatch } from "react-redux";
-import { setCurrentUser } from "../store/states/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser, setCurrentUser } from "../store/states/userSlice";
 import { PUBLIC_ROUTES } from "../routes";
 import axios from "axios";
 import { updateCompanyRecruiterId } from "../store/states/idStore";
@@ -23,6 +23,7 @@ export default function AuthWrapper({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const dispatch = useDispatch();
 
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
@@ -37,6 +38,7 @@ export default function AuthWrapper({
   const getIDToken = async (user: User) => {
     try {
       const idToken = await user.getIdToken(true);
+
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_AUTH_BACKEND}/api/token/verify`,
         { headers: { token: idToken } }
@@ -79,20 +81,22 @@ export default function AuthWrapper({
     });
 
     return () => unsubscribe();
-  }, []);
+  }, []); // runs once on mount
 
+  // Redirect after login check completes
   useEffect(() => {
     if (!loginChecked) return;
 
     if (!loggedIn && !isPublicRoute(pathName)) {
-      window.location.replace("/recruiter/register/recruiter");
+      router.replace("/register/recruiter");
     } else if (loggedIn && isPublicRoute(pathName)) {
-      window.location.replace("/recruiter");
+      router.replace("/");
     } else {
       setLoading(false);
     }
   }, [loginChecked, loggedIn]);
 
+  // If path changes to a public route, stop the spinner
   useEffect(() => {
     if (isPublicRoute(pathName)) {
       setLoading(false);
