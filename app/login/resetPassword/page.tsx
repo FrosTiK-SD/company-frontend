@@ -36,7 +36,7 @@ export default function ResetPassword() {
                     title: "Password Reset Email Sent.",
                     message: "Check your inbox.",
                 });
-                router.push("/login/recruiter");
+                router.replace("/login/recruiter");
             } else {
                 let message = "Error";
                 if (response.error == "Firebase: Error (auth/invalid-email).") {

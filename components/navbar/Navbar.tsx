@@ -74,7 +74,7 @@ export function NavbarNested({
             className="flex gap-4 cursor-pointer"
             style={{ alignItems: "center" }}
             onClick={() => {
-              router.push("/", {
+              router.replace("/", {
                 forceOptimisticNavigation: true,
               });
             }}

@@ -7,6 +7,7 @@ import {
   IconBrandLinkedin,
   IconBrandGmail,
 } from "../components";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 export interface CreditsDataType {
   [key: string]: string;
@@ -35,15 +36,15 @@ export default function Team(props: CreditsDataType) {
           </Typography>
           <Typography className="flex justify-center">{props.title}</Typography>
           <div className="flex flex-row justify-center">
-            <a href={props.githubURL}>
+            <Link href={props.githubURL}>
               <IconBrandGithubFilled className="pr-3" size={40} />
-            </a>
-            <a href={props.linkedinURL}>
+            </Link>
+            <Link href={props.linkedinURL}>
               <IconBrandLinkedin className="pr-3" size={40} />
-            </a>
-            <a href={`mailto:${props.mailID}`}>
+            </Link>
+            <Link href={`mailto:${props.mailID}`}>
               <IconBrandGmail className="pr-3" size={40} />
-            </a>
+            </Link>
           </div>
           <Typography className="flex justify-center p-4 text-center">
             {props.description}

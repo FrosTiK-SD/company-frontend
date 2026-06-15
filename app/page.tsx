@@ -14,6 +14,7 @@ import { selectUser } from "../store/states/userSlice";
 import { selectIdStore } from "../store/states/idStore";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 import { IconEdit } from "@tabler/icons";
 
 export interface FormInterface {
@@ -83,10 +84,9 @@ export default function Home() {
   const IdStore = useSelector(selectIdStore);
 
   useEffect(() => {
-    if (!User.currentUser)
-      router.push("/register/recruiter", {
-        forceOptimisticNavigation: true,
-      });
+    if (!User.currentUser) {
+      router.replace("/register/recruiter");
+    }
   }, []);
 
   const convertStringToDate = (str: string) => {
@@ -175,7 +175,7 @@ export default function Home() {
               Choose the form you want to fill
             </Typography>
             {formTypes.map((form, formIndex) => (
-              <a
+              <Link
                 key={`Form_${formIndex}`}
                 href={form.goTo}
                 target="_blank"
@@ -187,7 +187,7 @@ export default function Home() {
                     {form.description}
                   </Typography>
                 </Paper>
-              </a>
+              </Link>
             ))}
           </Modal>
 
@@ -246,7 +246,7 @@ export default function Home() {
                           })
                           .map((form, formIndex) => {
                             return (
-                              <a
+                              <Link
                                 key={`Form_${formIndex}`}
                                 target="_blank"
                                 href={`/company/${form.type == FormType.IAF ? "iaf" : "jaf"
@@ -279,7 +279,7 @@ export default function Home() {
                                     </Typography>
                                   </div>
                                   <div>
-                                    <a
+                                    <Link
                                       target="_blank"
                                       href={`/company/${form.type == FormType.IAF
                                           ? "iaf"
@@ -291,10 +291,10 @@ export default function Home() {
                                         }`}
                                     >
                                       <IconEdit />
-                                    </a>
+                                    </Link>
                                   </div>
                                 </Paper>
-                              </a>
+                              </Link>
                             );
                           })
                       ) : (
@@ -341,7 +341,7 @@ export default function Home() {
                       iafFormList && iafFormList.length ? (
                         iafFormList.map((form, formIndex) => {
                           return (
-                            <a
+                            <Link
                               key={`Form_${formIndex}`}
                               target="_blank"
                               href={`/company/iaf/${form.iaf_id}`}
@@ -350,7 +350,7 @@ export default function Home() {
                                 key={`Form_${formIndex}`}
                                 className="m-2 p-5 rounded-md shadow-md flex justify-between"
                                 onClick={() => {
-                                  router.push(`/company/iaf/${form._id}`);
+                                  router.replace(`/company/iaf/${form._id}`);
                                 }}
                               >
                                 <div>
@@ -362,15 +362,15 @@ export default function Home() {
                                   </Typography>
                                 </div>
                                 <div>
-                                  <a
+                                  <Link
                                     target="_blank"
                                     href={`/company/iaf/edit/${form.iaf_id}`}
                                   >
                                     <IconEdit />
-                                  </a>
+                                  </Link>
                                 </div>
                               </Paper>
-                            </a>
+                            </Link>
                           );
                         })
                       ) : (
@@ -417,7 +417,7 @@ export default function Home() {
                       jafFormList && jafFormList.length ? (
                         jafFormList.map((form, formIndex) => {
                           return (
-                            <a
+                            <Link
                               key={`Form_${formIndex}`}
                               target="_blank"
                               href={`/company/jaf/${form.jaf_id}`}
@@ -432,15 +432,15 @@ export default function Home() {
                                   </Typography>
                                 </div>
                                 <div>
-                                  <a
+                                  <Link
                                     target="_blank"
                                     href={`/company/jaf/edit/${form.jaf_id}`}
                                   >
                                     <IconEdit />
-                                  </a>
+                                  </Link>
                                 </div>
                               </Paper>
-                            </a>
+                            </Link>
                           );
                         })
                       ) : (

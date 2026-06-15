@@ -54,9 +54,7 @@ function Page() {
             aria-hidden={true}
             color="purple"
             onClick={() => {
-              router.push("/login/recruiter", {
-                forceOptimisticNavigation: true,
-              });
+              router.replace("/login/recruiter");
             }}
             variant="gradient"
           >
