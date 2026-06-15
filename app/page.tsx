@@ -83,12 +83,6 @@ export default function Home() {
   const User = useSelector(selectUser);
   const IdStore = useSelector(selectIdStore);
 
-  useEffect(() => {
-    if (!User.currentUser) {
-      router.replace("/register/recruiter");
-    }
-  }, []);
-
   const convertStringToDate = (str: string) => {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     return Intl.DateTimeFormat("en-GB", {

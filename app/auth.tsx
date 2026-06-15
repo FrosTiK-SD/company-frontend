@@ -1,12 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-
 import firebase from "firebase/compat/app";
-import { getAuth, Auth, User } from "firebase/auth";
+import { getAuth, User } from "firebase/auth";
 import { FIREBASE_CONFIG } from "../constants/firebase";
-import { useDispatch, useSelector } from "react-redux";
-import { selectUser, setCurrentUser } from "../store/states/userSlice";
+import { useDispatch } from "react-redux";
+import { setCurrentUser } from "../store/states/userSlice";
 import { PUBLIC_ROUTES } from "../routes";
 import axios from "axios";
 import { updateCompanyRecruiterId } from "../store/states/idStore";
@@ -23,34 +22,31 @@ export default function AuthWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
+  const router   = useRouter();
   const dispatch = useDispatch();
 
-  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [loggedIn,     setLoggedIn]     = useState<boolean>(false);
   const [loginChecked, setLoginChecked] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading,      setLoading]      = useState<boolean>(true);
 
-  const rawPathName: string = usePathname() || "";
-  const pathName = stripBasePath(rawPathName);
+  // usePathname() already strips basePath — stripBasePath() is a safe no-op
+  const rawPathName = usePathname() || "";
+  const pathName    = stripBasePath(rawPathName);
 
-  const isPublicRoute = (path: string): boolean => path in PUBLIC_ROUTES;
+  const isPublicRoute = (path: string): boolean => Boolean(PUBLIC_ROUTES[path]);
 
   const getIDToken = async (user: User) => {
     try {
-      const idToken = await user.getIdToken(true);
-
+      const idToken  = await user.getIdToken(true);
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_AUTH_BACKEND}/api/token/verify`,
         { headers: { token: idToken } }
       );
-
       if (!response.data.error && response.data?.data) {
-        dispatch(
-          updateCompanyRecruiterId({
-            companyId: response.data.data["company"],
-            recruiterId: response.data.data["_id"],
-          })
-        );
+        dispatch(updateCompanyRecruiterId({
+          companyId:   response.data.data["company"],
+          recruiterId: response.data.data["_id"],
+        }));
         dispatch(setCurrentUser({ user }));
         setLoggedIn(true);
       } else {
@@ -65,8 +61,10 @@ export default function AuthWrapper({
   };
 
   useEffect(() => {
+    // Public routes skip Firebase entirely — no auth needed
     if (isPublicRoute(pathName)) {
       setLoading(false);
+      setLoginChecked(true);  // ← prevent redirect logic from firing
       return;
     }
 
@@ -81,27 +79,32 @@ export default function AuthWrapper({
     });
 
     return () => unsubscribe();
-  }, []); // runs once on mount
-  
-  // Redirect after login check completes
+  }, [pathName]);  // ← re-run when path changes, not just on mount
+
+  // Redirect logic — only runs after Firebase has responded
   useEffect(() => {
-    if (!loginChecked) return;
-  
+    if (!loginChecked) return;  // wait for Firebase
+
     if (!loggedIn && !isPublicRoute(pathName)) {
+      // Not logged in, on protected route → go to register
       router.replace("/register/recruiter");
     } else if (loggedIn && isPublicRoute(pathName)) {
+      // Logged in, on public route → go to dashboard
       router.replace("/");
     } else {
+      // All good — show the page
       setLoading(false);
     }
-  }, [loginChecked, loggedIn]);
+  }, [loginChecked, loggedIn, pathName]);
 
-  // If path changes to a public route, stop the spinner
-  useEffect(() => {
-    if (isPublicRoute(pathName)) {
-      setLoading(false);
-    }
-  }, [pathName]);
+  console.log("[AuthWrapper]", {
+    rawPathName,
+    pathName,
+    isPublic: isPublicRoute(pathName),
+    loginChecked,
+    loggedIn,
+    loading,
+  });
 
   return (
     <>
