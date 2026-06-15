@@ -1,8 +1,8 @@
-export const PUBLIC_ROUTES = {
-  "/login/recruiter": true,
-  "/register": true,
-  "/register/recruiter": true,
-  "/resume": true,
-  // "/": true,
+// routes.ts
+export const PUBLIC_ROUTES: Record<string, boolean> = {
+  "/login/recruiter":     true,
   "/login/resetPassword": true,
+  "/register":            true,
+  "/register/recruiter":  true,
+  "/resume":              true,
 };
