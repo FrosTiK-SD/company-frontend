@@ -83,14 +83,19 @@ export default function AuthWrapper({
     return () => unsubscribe();
   }, []); // runs once on mount
 
+  const redirectTo = (path: string) => {
+    const base = process.env.NEXT_PUBLIC_BASE_URL || "";
+    window.location.replace(`${base}${path}`);
+  };
+  
   // Redirect after login check completes
   useEffect(() => {
     if (!loginChecked) return;
-
+  
     if (!loggedIn && !isPublicRoute(pathName)) {
-      router.replace("/register/recruiter");
+      redirectTo("/recruiter/register/recruiter");
     } else if (loggedIn && isPublicRoute(pathName)) {
-      router.replace("/");
+      redirectTo("/recruiter");
     } else {
       setLoading(false);
     }
