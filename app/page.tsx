@@ -61,13 +61,13 @@ const formTypes: Array<FormInterface> = [
   {
     title: "Internship Announcement Form (IAF)",
     description:
-      "Fill this form to hire interns from IIT BHU for 2026 graduating students",
+      "Fill this form to hire interns from IIT BHU for 2028 graduating students",
     goTo: "/company/iaf",
   },
   {
     title: "Job Announcement Form (JAF)",
     description:
-      "Fill this form to hire full time candidates from IIT BHU for 2025 graduating students",
+      "Fill this form to hire full time candidates from IIT BHU for 2027 graduating students",
     goTo: "/company/jaf",
   },
 ];
@@ -221,14 +221,14 @@ export default function Home() {
             <Tabs.Panel value="all" pt="xs">
               <Tabs
                 color="purple"
-                defaultValue="2022-23"
+                defaultValue="2026-27"
                 orientation="vertical"
               >
                 <Tabs.List>
-                  <Tabs.Tab value="2022-23">2022-23</Tabs.Tab>
+                  <Tabs.Tab value="2026-27">2026-27</Tabs.Tab>
                 </Tabs.List>
 
-                <Tabs.Panel value="2022-23" pl="xs">
+                <Tabs.Panel value="2026-27" pl="xs">
                   <div className="max-h-[70vh] overflow-scroll">
                     {!formsLoading ? (
                       [...iafFormList, ...jafFormList].length ? (
@@ -322,14 +322,14 @@ export default function Home() {
             <Tabs.Panel value="iaf" pt="xs">
               <Tabs
                 color="purple"
-                defaultValue="2022-23"
+                defaultValue="2026-27"
                 orientation="vertical"
               >
                 <Tabs.List>
-                  <Tabs.Tab value="2022-23">2022-23</Tabs.Tab>
+                  <Tabs.Tab value="2026-27">2026-27</Tabs.Tab>
                 </Tabs.List>
 
-                <Tabs.Panel value="2022-23" pl="xs">
+                <Tabs.Panel value="2026-27" pl="xs">
                   <div className="max-h-[70vh] overflow-scroll">
                     {!formsLoading ? (
                       iafFormList && iafFormList.length ? (
@@ -398,14 +398,14 @@ export default function Home() {
             <Tabs.Panel value="jaf" pt="xs">
               <Tabs
                 color="purple"
-                defaultValue="2022-23"
+                defaultValue="2026-27"
                 orientation="vertical"
               >
                 <Tabs.List>
-                  <Tabs.Tab value="2022-23">2022-23</Tabs.Tab>
+                  <Tabs.Tab value="2026-27">2026-27</Tabs.Tab>
                 </Tabs.List>
 
-                <Tabs.Panel value="2022-23" pl="xs">
+                <Tabs.Panel value="2026-27" pl="xs">
                   <div className="max-h-[70vh] overflow-scroll">
                     {!formsLoading ? (
                       jafFormList && jafFormList.length ? (
