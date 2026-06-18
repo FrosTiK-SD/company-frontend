@@ -133,9 +133,11 @@ export default function Login() {
           </Typography>
         )}
         <Anchor
-          href="/login/resetPassword"
-          c={theme.colors["dark"][theme.colorScheme == "light" ? 9 : 0]} // For some reason anchor doesn't change color with theme, so had to do this manually
+          component="button"
+          type="button"
+          c={theme.colors["dark"][theme.colorScheme == "light" ? 9 : 0]}
           className="mt-3 flex flex-row justify-center"
+          onClick={() => router.replace("/login/resetPassword")}
         >
           Forgot your password?
         </Anchor>
