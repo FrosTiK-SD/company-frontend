@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import firebase from "firebase/compat/app";
-import { getAuth, User } from "firebase/auth";
+import { getAuth, signOut, User } from "firebase/auth";
 import { FIREBASE_CONFIG } from "../constants/firebase";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../store/states/userSlice";
@@ -17,6 +17,15 @@ if (!firebase.apps.length) {
 }
 const firebaseAuth = getAuth(firebase.app());
 
+export const logoutUser = async () => {
+  try {
+    await signOut(firebaseAuth);
+  } catch (error) {
+    console.error("Logout failed:", error);
+    throw error;
+  }
+};
+
 export default function AuthWrapper({
   children,
 }: {
@@ -29,7 +38,6 @@ export default function AuthWrapper({
   const [loginChecked, setLoginChecked] = useState<boolean>(false);
   const [loading,      setLoading]      = useState<boolean>(true);
 
-  // usePathname() already strips basePath — stripBasePath() is a safe no-op
   const rawPathName = usePathname() || "";
   const pathName    = stripBasePath(rawPathName);
 
@@ -50,10 +58,12 @@ export default function AuthWrapper({
         dispatch(setCurrentUser({ user }));
         setLoggedIn(true);
       } else {
+        dispatch(setCurrentUser({ user: null }));
         setLoggedIn(false);
       }
     } catch (error) {
       console.error("Token verification failed:", error);
+      dispatch(setCurrentUser({ user: null }));
       setLoggedIn(false);
     } finally {
       setLoginChecked(true);
@@ -61,12 +71,13 @@ export default function AuthWrapper({
   };
 
   useEffect(() => {
-    // Public routes skip Firebase entirely — no auth needed
     if (isPublicRoute(pathName)) {
       setLoading(false);
-      setLoginChecked(true);  // ← prevent redirect logic from firing
+      setLoginChecked(true); 
       return;
     }
+
+    setLoginChecked(false);
 
     const unsubscribe = firebaseAuth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -79,42 +90,27 @@ export default function AuthWrapper({
     });
 
     return () => unsubscribe();
-  }, [pathName]);  // ← re-run when path changes, not just on mount
+  }, [pathName]); 
 
-  // Redirect logic — only runs after Firebase has responded
   useEffect(() => {
-    if (!loginChecked) return;  // wait for Firebase
+    if (!loginChecked) return;
 
     if (!loggedIn && !isPublicRoute(pathName)) {
-      // Not logged in, on protected route → go to register
       router.replace("/register/recruiter");
     } else if (loggedIn && isPublicRoute(pathName)) {
-      // Logged in, on public route → go to dashboard
       router.replace("/");
     } else {
-      // All good — show the page
       setLoading(false);
     }
-  }, [loginChecked, loggedIn, pathName]);
+  }, [loginChecked, loggedIn, pathName, router]);
 
-  console.log("[AuthWrapper]", {
-    rawPathName,
-    pathName,
-    isPublic: isPublicRoute(pathName),
-    loginChecked,
-    loggedIn,
-    loading,
-  });
+  if (loading) {
+    return (
+      <div className="h-[100vh] w-full flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
-  return (
-    <>
-      {loading ? (
-        <div className="h-[100vh] w-full">
-          <Spinner />
-        </div>
-      ) : (
-        <>{children}</>
-      )}
-    </>
-  );
+  return <>{children}</>;
 }
