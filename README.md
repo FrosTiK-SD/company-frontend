@@ -1,5 +1,5 @@
 # TPC Portal Frontend
-For recruiters only (for now)
+For recruiters only
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
