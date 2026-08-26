@@ -108,6 +108,11 @@ const JAFSchema: FormBuilder = {
               key: "mtech",
             },
             {
+              label: "M.Sc",
+              description: "2 Yr Masters in Science",
+              key: "msc",
+            },
+            {
               label: "PhD",
               key: "phd",
             },
@@ -650,6 +655,146 @@ const JAFSchema: FormBuilder = {
             },
             {
               title: "M.Tech CTC",
+              key: "compensationDetails",
+              type: FormType.SECTION,
+              formElements: [
+                {
+                  label: "Total CTC",
+                  key: "totalCTC",
+                  type: FormInputType.CURRENCY,
+                  required: true,
+                },
+                {
+                  label: "1st Year CTC",
+                  key: "firstYearCTC",
+                  type: FormInputType.CURRENCY,
+                  required: true,
+                },
+                {
+                  label: "Fixed Salary",
+                  key: "fixedSalary",
+                  type: FormInputType.CURRENCY,
+                  required: true,
+                },
+                {
+                  label: "Provident Fund and Gratuity",
+                  key: "providentFundAndGratuity",
+                  type: FormInputType.SHORT_TEXT,
+                  required: true,
+                },
+                {
+                  label: "Joining Bonus",
+                  key: "joiningBonus",
+                  type: FormInputType.CURRENCY,
+                  required: true,
+                },
+                {
+                  label: "Relocation Bonus",
+                  key: "relocationBonus",
+                  type: FormInputType.CURRENCY,
+                  required: true,
+                },
+                {
+                  label: "Patent Bonus",
+                  key: "patentBonus",
+                  type: FormInputType.SHORT_TEXT,
+                  required: true,
+                },
+                {
+                  label: "Education Reimbursement",
+                  key: "educationReimbursement",
+                  type: FormInputType.SHORT_TEXT,
+                  required: true,
+                },
+                {
+                  label: "Bonds(if any)",
+                  key: "bonds",
+                  type: FormInputType.SHORT_TEXT,
+                  required: true,
+                },
+                {
+                  label: "Stocks (with vesting period)",
+                  key: "stocksWithVestingPlan",
+                  type: FormInputType.SHORT_TEXT,
+                  required: true,
+                },
+                {
+                  label: "Other Benefits",
+                  key: "otherBenefits",
+                  type: FormInputType.SHORT_TEXT,
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: "M.Sc Courses",
+          key: "msc",
+          type: FormType.SECTION,
+          visible: {
+            props: ["[jobDescription]-[courses]"],
+            validator: (eligibilityArray: Array<string>) => {
+              const eligibility = eligibilityArray[0];
+              if (!eligibility) return false;
+              return eligibility.includes("msc") ? true : false;
+            },
+          },
+          formElements: [
+            {
+              title: "M.Sc Eligibility Criteria",
+              key: "eligibility",
+              type: FormType.SECTION,
+              formElements: [
+                {
+                  label: "CGPA",
+                  key: "cgpa",
+                  type: FormInputType.NUMBER,
+                  required: true,
+                  description: "CGPA must be a number between 0 - 10",
+                  max: 10,
+                  min: 0,
+                  visible: {
+                    props: ["[jobDescription]-[isCGPACriteria]"],
+                    validator(arg0) {
+                      if (arg0[0] == true) {
+                        return true;
+                      }
+                      return false;
+                    },
+                  }
+                },
+                {
+                  label: "Eligible Branches",
+                  key: "branches",
+                  required: true,
+                  type: FormInputType.CHECKBOX,
+                  options: [
+                    {
+                      label: "All",
+                      key: "all",
+                      value: ["phy", "chy"],
+                    },
+                    {
+                      label: "Department of Physics",
+                      key: "phy",
+                    },
+                    {
+                      label: "Department of Chemistry",
+                      key: "chy",
+                    },
+                  ],
+                },
+                {
+                  label: "Age Limit",
+                  key: "ageLimit",
+                  type: FormInputType.SHORT_TEXT,
+                  required: false,
+                },
+              ],
+            },
+            {
+              title: "M.Sc CTC",
               key: "compensationDetails",
               type: FormType.SECTION,
               formElements: [

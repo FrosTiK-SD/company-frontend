@@ -123,6 +123,11 @@ const IAFSchema: FormBuilder = {
               key: "mtech",
             },
             {
+              label: "M.Sc",
+              description: "2 Yr Masters in Science",
+              key: "msc",
+            },
+            {
               label: "PhD",
               key: "phd",
             },
@@ -662,6 +667,125 @@ const IAFSchema: FormBuilder = {
                   required: false,
                   visible: {
                     props: ["[internshipDescription]-[mtech]-[compensationDetails]-[provisionForPPO]"],
+                    validator(arg0) {
+                      if (arg0[0] == true) {
+                        return true;
+                      }
+                      return false;
+                    },
+                  }
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: "",
+          key: "msc",
+          type: FormType.SECTION,
+          visible: {
+            props: ["[internshipDescription]-[courses]"],
+            validator: (eligibilityArray: Array<string>) => {
+              const eligibility = eligibilityArray[0];
+              if (!eligibility) return false;
+              return eligibility.includes("msc") ? true : false;
+            },
+          },
+          formElements: [
+            {
+              title: "M.Sc Eligibility Criteria",
+              key: "eligibility",
+              type: FormType.SECTION,
+              formElements: [
+                {
+                  label: "CGPA",
+                  key: "cgpa",
+                  type: FormInputType.NUMBER,
+                  required: true,
+                  description: "CGPA must be a number between 0 - 10",
+                  max: 10,
+                  min: 0,
+                  visible: {
+                    props: ["[internshipDescription]-[isCGPACriteria]"],
+                    validator(arg0) {
+                      if (arg0[0] == true) {
+                        return true;
+                      }
+                      return false;
+                    },
+                  }
+                },
+                {
+                  label: "Eligible Branches",
+                  key: "branches",
+                  required: true,
+                  type: FormInputType.CHECKBOX,
+                  options: [
+                    {
+                      label: "All",
+                      key: "all",
+                      value: ["phy", "chy"],
+                    },
+                    {
+                      label: "Department of Physics",
+                      key: "phy",
+                    },
+                    {
+                      label: "Department of Chemistry",
+                      key: "chy",
+                    },
+                  ],
+                },
+                {
+                  label: "Age Limit",
+                  key: "ageLimit",
+                  type: FormInputType.SHORT_TEXT,
+                  required: false,
+                },
+              ],
+            },
+            {
+              title: "M.Sc Stipend Details",
+              key: "compensationDetails",
+              type: FormType.SECTION,
+              formElements: [
+                {
+                  label: "Stipend Per Month",
+                  key: "stipendPerMonth",
+                  type: FormInputType.CURRENCY,
+                  required: true,
+                },
+                {
+                  label: "Accommodation",
+                  key: "accommodation",
+                  type: FormInputType.SHORT_TEXT,
+                  required: false,
+                },
+                {
+                  label: "Relocation Bonus",
+                  key: "relocationBonus",
+                  type: FormInputType.SHORT_TEXT,
+                  required: false,
+                },
+                {
+                  label: "Incentives/Perks/Bonus",
+                  key: "incentives",
+                  type: FormInputType.SHORT_TEXT,
+                  required: false,
+                },
+                {
+                  label: "Will PPO be provided after internship based on performance?",
+                  key: "provisionForPPO",
+                  type: FormInputType.SWITCH_INPUT,
+                  required: false,
+                },
+                {
+                  label: "Tentative CTC for the PPO",
+                  key: "tentativeCTC",
+                  type: FormInputType.SHORT_TEXT,
+                  required: false,
+                  visible: {
+                    props: ["[internshipDescription]-[msc]-[compensationDetails]-[provisionForPPO]"],
                     validator(arg0) {
                       if (arg0[0] == true) {
                         return true;
